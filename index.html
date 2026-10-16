@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Neon Rally — Ping-Pong</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1020;--panel:#141b2e;--line:#26314a;--muted:#8a96b2;--text:#f5f7ff;--cyan:#59e1e9;--purple:#a486ff;--green:#b6ffcf}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#20365b 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;display:grid;place-items:center;padding:28px 18px}
+    button,select{font:inherit}button{cursor:pointer}.app{width:min(1100px,100%)}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:21px;gap:18px}.brand{display:flex;align-items:center;gap:12px}.mark{width:44px;height:44px;border-radius:14px;background:linear-gradient(140deg,var(--cyan),var(--purple));display:grid;place-items:center;color:#101526;font-size:23px;font-weight:900;box-shadow:0 8px 30px #59e1e933}.brand h1{font-size:19px;line-height:1.2;margin:0;letter-spacing:.2px}.brand p{color:var(--muted);font-size:12px;margin:4px 0 0}.top-right{display:flex;align-items:center;gap:10px}.select,.btn{height:40px;border:1px solid var(--line);border-radius:11px;background:#12192b;color:var(--text);padding:0 13px}.btn{font-weight:700;transition:transform .15s,border-color .15s}.btn:hover{transform:translateY(-1px);border-color:#607194}.btn.primary{background:var(--text);border-color:var(--text);color:#11182a}.stats{display:flex;justify-content:center;gap:12px;margin-bottom:14px}.score-card{background:#11182a;border:1px solid var(--line);border-radius:14px;min-width:135px;padding:10px 18px;text-align:center}.score-card span{display:block;text-transform:uppercase;letter-spacing:1.3px;font-size:10px;color:var(--muted);font-weight:800}.score-card strong{display:block;font-size:26px;line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}.score-card.left strong{color:var(--cyan)}.score-card.right strong{color:var(--purple)}.score-card.best{min-width:105px}.score-card.best strong{font-size:20px;color:var(--green)}.game-shell{border:1px solid #2b3853;background:#11182a;border-radius:20px;padding:11px;box-shadow:0 30px 90px #0005;position:relative}.canvas-wrap{position:relative;overflow:hidden;border-radius:12px;background:#10182c;aspect-ratio:12/7}canvas{display:block;width:100%;height:100%;touch-action:none}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#081020a8;backdrop-filter:blur(6px);padding:20px}.overlay[hidden]{display:none}.dialog{max-width:400px;width:100%;text-align:center;background:#151e33;border:1px solid #34415e;border-radius:18px;padding:26px 24px;box-shadow:0 20px 80px #0006}.dialog .emoji{font-size:32px}.dialog h2{font-size:23px;margin:8px 0 5px}.dialog p{color:#aeb9cf;font-size:13px;margin:0 0 18px}.dialog .btn{min-width:140px}.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 8px 3px}.control-note{color:var(--muted);font-size:12px}.control-actions{display:flex;gap:8px}.control-actions .btn{height:36px;font-size:12px}.footer{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-top:15px}.kbd{color:#d5ddf2;background:#1b253b;border:1px solid #33405c;padding:1px 6px;border-radius:5px;font-size:10px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+    @media(max-width:620px){body{padding:18px 12px}.top{align-items:flex-start}.top-right{flex-direction:column;align-items:stretch}.select,.top-right .btn{height:36px;font-size:12px;padding:0 9px}.brand{gap:8px}.brand h1{font-size:16px}.mark{width:38px;height:38px}.score-card{min-width:90px;padding:8px 10px}.score-card.best{min-width:75px}.score-card strong{font-size:23px}.score-card.best strong{font-size:18px}.game-shell{padding:7px;border-radius:15px}.controls{align-items:flex-start;flex-direction:column}.control-note{font-size:11px}.control-actions{width:100%}.control-actions .btn{flex:1}.footer{gap:8px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="brand"><div class="mark" aria-hidden="true">↗</div><div><h1>NEON RALLY</h1><p>A quick game of skill against the computer</p></div></div>
+      <div class="top-right"><label class="sr-only" for="difficulty">Computer difficulty</label><select class="select" id="difficulty"><option value="0.78">Easy</option><option value="1" selected>Classic</option><option value="1.28">Fast</option></select><button class="btn primary" id="newGame">New game</button></div>
+    </header>
+    <section class="stats" aria-label="Scoreboard">
+      <div class="score-card left"><span>You</span><strong id="playerScore">0</strong></div>
+      <div class="score-card best"><span>First to</span><strong>7</strong></div>
+      <div class="score-card right"><span>Computer</span><strong id="computerScore">0</strong></div>
+    </section>
+    <section class="game-shell" aria-label="Ping-pong game">
+      <div class="canvas-wrap"><canvas id="game" aria-label="Game table. Move the mouse or use the arrow keys to control your paddle."></canvas>
+        <div class="overlay" id="overlay"><div class="dialog"><div class="emoji" id="overlayIcon">🏓</div><h2 id="overlayTitle">Ready to rally?</h2><p id="overlayText">Move your mouse over the left side, or use ↑ and ↓ to play. First to 7 wins.</p><button class="btn primary" id="startGame">Start game</button></div></div>
+      </div>
+      <div class="controls"><div class="control-note">Move with <span class="kbd">↑</span> <span class="kbd">↓</span> or point and drag · <span class="kbd">Space</span> to pause</div><div class="control-actions"><button class="btn" id="pauseGame" aria-pressed="false">Pause</button><button class="btn" id="resetGame">Reset score</button></div></div>
+    </section>
+    <p class="footer"><span>Single-player · Computer opponent</span><span>Touch friendly</span><span>Best score: <b id="bestScore">0</b></span></p>
+    <p class="sr-only" id="liveScore" aria-live="polite"></p>
+  </main>
+  <script>
+    (function(){
+      'use strict';
+      const W=960,H=560,PADDLE_H=104,PADDLE_W=14,WIN_SCORE=7,canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+      const playerNode=document.getElementById('playerScore'),computerNode=document.getElementById('computerScore'),bestNode=document.getElementById('bestScore'),liveNode=document.getElementById('liveScore'),overlay=document.getElementById('overlay'),overlayTitle=document.getElementById('overlayTitle'),overlayText=document.getElementById('overlayText'),overlayIcon=document.getElementById('overlayIcon'),startButton=document.getElementById('startGame'),pauseButton=document.getElementById('pauseGame'),difficulty=document.getElementById('difficulty');
+      let dpr=1,last=0,keys={up:false,down:false},best=0;
+      try{best=Number(localStorage.getItem('neon-rally-best')||0)}catch{}
+      const game={playerY:H/2,computerY:H/2,ball:{x:W/2,y:H/2,vx:0,vy:0,r:9},player:0,computer:0,running:false,started:false,ended:false,serveAt:0,mouseY:null};
+      bestNode.textContent=String(best);
+      function resize(){const rect=canvas.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);draw()}
+      function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
+      function serve(direction){game.ball.x=W/2;game.ball.y=H/2;game.ball.vx=0;game.ball.vy=0;game.serveAt=performance.now()+650;game.serveDirection=direction}
+      function start(){if(game.ended)reset();game.started=true;game.running=true;overlay.hidden=true;pauseButton.textContent='Pause';pauseButton.setAttribute('aria-pressed','false');last=performance.now()}
+      function pause(){if(!game.started||game.ended)return;game.running=!game.running;pauseButton.textContent=game.running?'Pause':'Resume';pauseButton.setAttribute('aria-pressed',String(!game.running));if(game.running){overlay.hidden=true;last=performance.now()}else{showOverlay('Paused','Take a breath, then resume the rally.','Ⅱ','Resume game')}}
+      function showOverlay(title,text,icon,buttonText){overlayTitle.textContent=title;overlayText.textContent=text;overlayIcon.textContent=icon;startButton.textContent=buttonText;overlay.hidden=false}
+      function reset(){game.player=0;game.computer=0;game.playerY=H/2;game.computerY=H/2;game.started=false;game.running=false;game.ended=false;keys.up=false;keys.down=false;serve(Math.random()<.5?-1:1);updateScore();pauseButton.textContent='Pause';pauseButton.setAttribute('aria-pressed','false');showOverlay('Ready to rally?','Move your mouse over the left side, or use ↑ and ↓ to play. First to 7 wins.','🏓','Start game');draw()}
+      function updateScore(){playerNode.textContent=String(game.player);computerNode.textContent=String(game.computer);liveNode.textContent='Score. You '+game.player+', Computer '+game.computer}
+      function endRound(winner){game.running=false;game.ended=true;game.started=true;const won=winner==='You';if(won&&game.player>best){best=game.player;bestNode.textContent=String(best);try{localStorage.setItem('neon-rally-best',String(best))}catch{}}showOverlay(won?'You win!':'Computer wins','Final score '+game.player+' — '+game.computer+'. Play another round?','🏆','Play again')}
+      function score(point){if(point==='player')game.player++;else game.computer++;updateScore();if(game.player>=WIN_SCORE||game.computer>=WIN_SCORE){endRound(game.player>=WIN_SCORE?'You':'Computer');return}serve(point==='player'?-1:1)}
+      function roundedRect(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+      function draw(){ctx.clearRect(0,0,W,H);const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#101a30');bg.addColorStop(1,'#101427');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+        ctx.strokeStyle='#7182a322';ctx.lineWidth=2;ctx.setLineDash([10,13]);ctx.beginPath();ctx.moveTo(W/2,22);ctx.lineTo(W/2,H-22);ctx.stroke();ctx.setLineDash([]);
+        ctx.strokeStyle='#9aa9c91c';ctx.lineWidth=1;ctx.beginPath();ctx.arc(W/2,H/2,83,0,Math.PI*2);ctx.stroke();
+        for(let y=22;y<H;y+=34){ctx.fillStyle='#ffffff0a';ctx.beginPath();ctx.arc(W/2,y,2,0,Math.PI*2);ctx.fill()}
+        const left=ctx.createLinearGradient(20,0,48,0);left.addColorStop(0,'#38cdd8');left.addColorStop(1,'#94f4f0');roundedRect(29,game.playerY-PADDLE_H/2,PADDLE_W,PADDLE_H,7,left);
+        const right=ctx.createLinearGradient(W-48,0,W-20,0);right.addColorStop(0,'#c6afff');right.addColorStop(1,'#9474ff');roundedRect(W-43,game.computerY-PADDLE_H/2,PADDLE_W,PADDLE_H,7,right);
+        ctx.shadowColor='#fff';ctx.shadowBlur=22;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(game.ball.x,game.ball.y,game.ball.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+        ctx.fillStyle='#fff4';ctx.font='700 12px system-ui';ctx.textAlign='left';ctx.fillText('YOU',29,26);ctx.textAlign='right';ctx.fillText('CPU',W-29,26);
+      }
+      function update(now){const dt=Math.min((now-last)/1000,.03);last=now;if(game.running){const computerSpeed=Number(difficulty.value)*355;
+        if(game.mouseY!==null){game.playerY+=clamp(game.mouseY-game.playerY,-720*dt,720*dt)}else if(keys.up!==keys.down){game.playerY+=(keys.down?1:-1)*460*dt}
+        game.playerY=clamp(game.playerY,PADDLE_H/2+8,H-PADDLE_H/2-8);
+        const target=game.ball.vx>0?game.ball.y+game.ball.vy*.12:H/2;game.computerY+=clamp(target-game.computerY,-computerSpeed*dt,computerSpeed*dt);game.computerY=clamp(game.computerY,PADDLE_H/2+8,H-PADDLE_H/2-8);
+        if(now>=game.serveAt&&game.ball.vx===0){const speed=430;game.ball.vx=speed*game.serveDirection;game.ball.vy=(Math.random()-.5)*260}
+        game.ball.x+=game.ball.vx*dt;game.ball.y+=game.ball.vy*dt;
+        if(game.ball.y-game.ball.r<8){game.ball.y=8+game.ball.r;game.ball.vy=Math.abs(game.ball.vy)}if(game.ball.y+game.ball.r>H-8){game.ball.y=H-8-game.ball.r;game.ball.vy=-Math.abs(game.ball.vy)}
+        if(game.ball.vx<0&&game.ball.x-game.ball.r<43&&game.ball.x>23&&Math.abs(game.ball.y-game.playerY)<PADDLE_H/2+game.ball.r){game.ball.x=43+game.ball.r;game.ball.vx=Math.abs(game.ball.vx)*1.035;game.ball.vy+=(game.ball.y-game.playerY)*2.7}
+        if(game.ball.vx>0&&game.ball.x+game.ball.r>W-43&&game.ball.x<W-23&&Math.abs(game.ball.y-game.computerY)<PADDLE_H/2+game.ball.r){game.ball.x=W-43-game.ball.r;game.ball.vx=-Math.abs(game.ball.vx)*1.025;game.ball.vy+=(game.ball.y-game.computerY)*2.3}
+        if(game.ball.x<-20)score('computer');if(game.ball.x>W+20)score('player');
+        const speed=Math.hypot(game.ball.vx,game.ball.vy),max=760;if(speed>max){game.ball.vx*=max/speed;game.ball.vy*=max/speed}
+      }draw();requestAnimationFrame(update)}
+      function pointer(event){const rect=canvas.getBoundingClientRect();game.mouseY=clamp((event.clientY-rect.top)/rect.height*H,PADDLE_H/2+8,H-PADDLE_H/2-8)}
+      canvas.addEventListener('pointerdown',event=>{canvas.setPointerCapture(event.pointerId);pointer(event)});canvas.addEventListener('pointermove',pointer);canvas.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse')game.mouseY=null});
+      window.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','Space'].includes(event.code))event.preventDefault();if(event.code==='ArrowUp'||event.code==='KeyW')keys.up=true;if(event.code==='ArrowDown'||event.code==='KeyS')keys.down=true;if(event.code==='Space'&&!event.repeat){if(!game.started)start();else pause()}});
+      window.addEventListener('keyup',event=>{if(event.code==='ArrowUp'||event.code==='KeyW')keys.up=false;if(event.code==='ArrowDown'||event.code==='KeyS')keys.down=false});
+      startButton.addEventListener('click',start);pauseButton.addEventListener('click',()=>{if(!game.started)start();else pause()});document.getElementById('newGame').addEventListener('click',reset);document.getElementById('resetGame').addEventListener('click',reset);window.addEventListener('resize',resize);
+      resize();reset();requestAnimationFrame(now=>{last=now;requestAnimationFrame(update)});
+    })();
+  </script>
+</body>
+</html>
