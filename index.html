@@ -38,7 +38,8 @@
       const W=960,H=560,PADDLE_H=104,PADDLE_W=14,WIN_SCORE=7,canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
       const playerNode=document.getElementById('playerScore'),computerNode=document.getElementById('computerScore'),bestNode=document.getElementById('bestScore'),liveNode=document.getElementById('liveScore'),overlay=document.getElementById('overlay'),overlayTitle=document.getElementById('overlayTitle'),overlayText=document.getElementById('overlayText'),overlayIcon=document.getElementById('overlayIcon'),startButton=document.getElementById('startGame'),pauseButton=document.getElementById('pauseGame'),difficulty=document.getElementById('difficulty');
       let dpr=1,last=0,keys={up:false,down:false},best=0;
-      try{best=Number(localStorage.getItem('neon-rally-best')||0)}catch{}
+      function loadBestScore(){try{const stored=Number(localStorage.getItem('neon-rally-best'));return Number.isSafeInteger(stored)&&stored>=0?stored:0}catch{return 0}}
+      best=loadBestScore();
       const game={playerY:H/2,computerY:H/2,ball:{x:W/2,y:H/2,vx:0,vy:0,r:9},player:0,computer:0,running:false,started:false,ended:false,serveAt:0,mouseY:null};
       bestNode.textContent=String(best);
       function resize(){const rect=canvas.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);draw()}
